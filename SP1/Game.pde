@@ -9,16 +9,19 @@ class Game
   private Keys keys;
   private int playerLife;
   private Dot player;
+  private Dot player2;
   private Dot[] enemies;
-  
-   
+  private Dot fruit;
+  private int playerLifeMax;
+
+
   Game(int width, int height, int numberOfEnemies)
   {
-    if(width < 10 || height < 10)
+    if (width < 10 || height < 10)
     {
       throw new IllegalArgumentException("Width and height must be at least 10");
     }
-    if(numberOfEnemies < 0)
+    if (numberOfEnemies < 0)
     {
       throw new IllegalArgumentException("Number of enemies must be positive");
     } 
@@ -27,172 +30,323 @@ class Game
     this.width = width;
     this.height = height;
     keys = new Keys();
-    player = new Dot(0,0,width-1, height-1);
+    player = new Dot(0, 0, width-1, height-1);
+    player2 = new Dot(1, 0, width-1, height-1);
     enemies = new Dot[numberOfEnemies];
-    for(int i = 0; i < numberOfEnemies; ++i)
+    for (int i = 0; i < numberOfEnemies; ++i)
     {
       enemies[i] = new Dot(width-1, height-1, width-1, height-1);
     }
+    fruit = new Dot((int)random(0, width-1), (int)random(0, height-1), width-1, height-1);
     this.playerLife = 100;
+    this.playerLifeMax = 100;
   }
-  
+
+
+
   public int getWidth()
   {
     return width;
   }
-  
+
   public int getHeight()
   {
     return height;
   }
-  
+
   public int getPlayerLife()
   {
     return playerLife;
   }
-  
+
   public void onKeyPressed(char ch)
   {
     keys.onKeyPressed(ch);
   }
-  
+
   public void onKeyReleased(char ch)
   {
     keys.onKeyReleased(ch);
   }
-  
+
+  public void onKeyPressed2()
+  {
+    keys.onKeyPressed2();
+  }
+
+  public void onKeyReleased2()
+  {
+    keys.onKeyReleased2();
+  }
+
+
   public void update()
   {
     updatePlayer();
+    updatePlayer2();
     updateEnemies();
+    updateFruit();
     checkForCollisions();
     clearBoard();
     populateBoard();
   }
-  
-  
-  
+
+
+
   public int[][] getBoard()
   {
     //ToDo: Defensive copy?
     return board;
   }
-  
+
   private void clearBoard()
   {
-    for(int y = 0; y < height; ++y)
+    for (int y = 0; y < height; ++y)
     {
-      for(int x = 0; x < width; ++x)
+      for (int x = 0; x < width; ++x)
       {
         board[x][y]=0;
       }
     }
   }
-  
+
   private void updatePlayer()
   {
     //Update player
-    if(keys.wDown() && !keys.sDown())
+    if (keys.wDown() && !keys.sDown())
     {
       player.moveUp();
     }
-    if(keys.aDown() && !keys.dDown())
+    if (keys.aDown() && !keys.dDown())
     {
       player.moveLeft();
     }
-    if(keys.sDown() && !keys.wDown())
+    if (keys.sDown() && !keys.wDown())
     {
       player.moveDown();
     }
-    if(keys.dDown() && !keys.aDown())
+    if (keys.dDown() && !keys.aDown())
     {
       player.moveRight();
-    }  
+    }
   }
-  
+
+  private void updatePlayer2()
+  {
+    //Update player
+    if (keys.upDown())
+    {
+      player2.moveUp();
+    }
+    if (keys.leftDown())
+    {
+      player2.moveLeft();
+    }
+    if (keys.downDown())
+    {
+      player2.moveDown();
+    }
+    if (keys.rightDown())
+    {
+      player2.moveRight();
+    }
+  }
+
   private void updateEnemies()
   {
-    for(int i = 0; i < enemies.length; ++i)
+    //first half of enemies
+    for (int i = 0; i <3; i++)
     {
       //Should we follow or move randomly?
       //2 out of 3 we will follow..
-      if(rnd.nextInt(3) < 2)
+      if (rnd.nextInt(3) < 2)
       {
         //We follow
         int dx = player.getX() - enemies[i].getX();
         int dy = player.getY() - enemies[i].getY();
-        if(abs(dx) > abs(dy))
+        if (abs(dx) > abs(dy))
         {
-          if(dx > 0)
+          if (dx > 0)
           {
             //Player is to the right
             enemies[i].moveRight();
-          }
-          else
+          } else
           {
             //Player is to the left
             enemies[i].moveLeft();
           }
-        }
-        else if(dy > 0)
+        } else if (dy > 0)
         {
           //Player is down;
           enemies[i].moveDown();
-        }
-        else
-        {//Player is up;
+        } else {
           enemies[i].moveUp();
         }
-      }
-      else
+      } else
       {
         //We move randomly
         int move = rnd.nextInt(4);
-        if(move == 0)
+        if (move == 0)
         {
           //Move right
           enemies[i].moveRight();
-        }
-        else if(move == 1)
+        } else if (move == 1)
         {
           //Move left
           enemies[i].moveLeft();
-        }
-        else if(move == 2)
+        } else if (move == 2)
         {
           //Move up
           enemies[i].moveUp();
-        }
-        else if(move == 3)
+        } else if (move == 3)
         {
           //Move down
           enemies[i].moveDown();
         }
       }
     }
+   //other half of enemies 
+    for (int i = 3; i <6; i++)
+    {
+      //Should we follow or move randomly?
+      //2 out of 3 we will follow..
+      if (rnd.nextInt(3) < 2)
+      {
+        //We follow
+        int dx = player2.getX() - enemies[i].getX();
+        int dy = player2.getY() - enemies[i].getY();
+        if (abs(dx) > abs(dy))
+        {
+          if (dx > 0)
+          {
+            //Player is to the right
+            enemies[i].moveRight();
+          } else
+          {
+            //Player is to the left
+            enemies[i].moveLeft();
+          }
+        } else if (dy > 0)
+        {
+          //Player is down;
+          enemies[i].moveDown();
+        } else {
+          enemies[i].moveUp();
+        }
+      } else
+      {
+        //We move randomly
+        int move = rnd.nextInt(4);
+        if (move == 0)
+        {
+          //Move right
+          enemies[i].moveRight();
+        } else if (move == 1)
+        {
+          //Move left
+          enemies[i].moveLeft();
+        } else if (move == 2)
+        {
+          //Move up
+          enemies[i].moveUp();
+        } else if (move == 3)
+        {
+          //Move down
+          enemies[i].moveDown();
+        }
+      }
+    }
+    
+    
+    
   }
-  
+
+  private void updateFruit()
+  {
+    //Should we follow or move randomly?
+    //2 out of 3 we will follow..
+    if (rnd.nextInt(3) < 2)
+    {
+      //We follow
+      int dx = player.getX() - fruit.getX();
+      int dy = player.getY() - fruit.getY();
+      if (abs(dx) > abs(dy))
+      {
+        if (dx > 0)
+        {
+          //Player is to the right
+          fruit.moveLeft();
+        } else
+        {
+          //Player is to the left
+          fruit.moveRight();
+        }
+      } else if (dy > 0)
+      {
+        //Player is down;
+        fruit.moveUp();
+      } else
+      {//Player is up;
+        fruit.moveDown();
+      }
+    } else
+    {
+      //We move randomly
+      int move = rnd.nextInt(4);
+      if (move == 0)
+      {
+        //Move right
+        fruit.moveRight();
+      } else if (move == 1)
+      {
+        //Move left
+        fruit.moveLeft();
+      } else if (move == 2)
+      {
+        //Move up
+        fruit.moveUp();
+      } else if (move == 3)
+      {
+        //Move down
+        fruit.moveDown();
+      }
+    }
+  }
+
+
+
+
   private void populateBoard()
   {
     //Insert player
     board[player.getX()][player.getY()] = 1;
+    //insert player 2
+    board[player2.getX()][player2.getY()] = 4;
     //Insert enemies
-    for(int i = 0; i < enemies.length; ++i)
+    for (int i = 0; i < enemies.length; ++i)
     {
       board[enemies[i].getX()][enemies[i].getY()] = 2;
     }
+    board[fruit.getX()][fruit.getY()] = 3;
   }
-   
+
   private void checkForCollisions()
   {
     //Check enemy collisions
-    for(int i = 0; i < enemies.length; ++i)
+    for (int i = 0; i < enemies.length; ++i)
     {
-      if(enemies[i].getX() == player.getX() && enemies[i].getY() == player.getY())
+      if (enemies[i].getX() == player.getX() && enemies[i].getY() == player.getY())
       {
         //We have a collision
         --playerLife;
       }
+    }
+    if (fruit.getX()==player.getX()&&fruit.getY()==player.getY()) {
+      playerLife+=10;
+      if (playerLife>playerLifeMax) {
+        playerLife=100;
+      }
+      fruit = new Dot((int)random(0, width-1), (int)random(0, height-1), width-1, height-1);
     }
   }
 }
