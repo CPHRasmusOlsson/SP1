@@ -13,6 +13,7 @@ class Game
   private Dot[] enemies;
   private Dot fruit;
   private int playerLifeMax;
+  private int player2Life;
 
 
   Game(int width, int height, int numberOfEnemies)
@@ -39,7 +40,8 @@ class Game
     }
     fruit = new Dot((int)random(0, width-1), (int)random(0, height-1), width-1, height-1);
     this.playerLife = 100;
-    this.playerLifeMax = 100;
+    this.player2Life = 100;
+    playerLifeMax = 100;
   }
 
 
@@ -57,6 +59,11 @@ class Game
   public int getPlayerLife()
   {
     return playerLife;
+  }
+
+  public int getPlayer2Life()
+  {
+    return player2Life;
   }
 
   public void onKeyPressed(char ch)
@@ -205,7 +212,7 @@ class Game
         }
       }
     }
-   //other half of enemies 
+    //other half of enemies 
     for (int i = 3; i <6; i++)
     {
       //Should we follow or move randomly?
@@ -256,9 +263,6 @@ class Game
         }
       }
     }
-    
-    
-    
   }
 
   private void updateFruit()
@@ -320,8 +324,15 @@ class Game
   {
     //Insert player
     board[player.getX()][player.getY()] = 1;
+    if(playerLife <= 0){
+     board[player.getX()][player.getY()] = 0; 
+    }
+    
     //insert player 2
     board[player2.getX()][player2.getY()] = 4;
+    if(player2Life <= 0){
+     board[player2.getX()][player2.getY()] = 0; 
+    }
     //Insert enemies
     for (int i = 0; i < enemies.length; ++i)
     {
@@ -340,11 +351,28 @@ class Game
         //We have a collision
         --playerLife;
       }
+    }  
+
+    for (int i = 0; i < enemies.length; ++i)
+    {
+      if (enemies[i].getX() == player2.getX() && enemies[i].getY() == player2.getY())
+      {
+        //We have a collision
+        --player2Life;
+      }
     }
     if (fruit.getX()==player.getX()&&fruit.getY()==player.getY()) {
       playerLife+=10;
       if (playerLife>playerLifeMax) {
-        playerLife=100;
+        playerLife=playerLifeMax;
+      }
+      fruit = new Dot((int)random(0, width-1), (int)random(0, height-1), width-1, height-1);
+    }
+
+    if (fruit.getX()==player2.getX()&&fruit.getY()==player2.getY()) {
+      player2Life+=10;
+      if (player2Life>playerLifeMax) {
+        player2Life=playerLifeMax;
       }
       fruit = new Dot((int)random(0, width-1), (int)random(0, height-1), width-1, height-1);
     }

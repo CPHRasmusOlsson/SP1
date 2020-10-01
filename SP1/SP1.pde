@@ -73,5 +73,15 @@ void draw()
     }
   }
   fill(255);
-  text("Lifes: "+game.getPlayerLife(), 25,25);
+  text("Player 1 Lifes: "+game.getPlayerLife(), 25,25);
+  text("Player 2 lifes:"+game.getPlayer2Life(),width-125,25);
+  
+  if(game.getPlayerLife()<=0){
+   text("Player 2 wins!",400,height/2); 
+   stop();
+  }
+  if(game.getPlayer2Life()<=0){
+   text("Player 2 wins!",400,height/2); 
+   stop();
+  }
 }
